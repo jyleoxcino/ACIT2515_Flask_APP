@@ -27,7 +27,7 @@ This application requires Python 3.11 and some other modules.
 Install dependencies using `pip`
 
 ```
-pip install flask flask-alchemy PyQt5
+pip install flask flask-sqlalchemy PyQt5
 ```
 
 ### Setup
@@ -38,13 +38,13 @@ pip install flask flask-alchemy PyQt5
 python.exe .\setup.py
 ```
 
-2. Start Flask development webserver.
+2. Start Flask development web server.
 
 ```
 python.exe .\webserver.py
 ```
 
-3. Start Flask_APP
+3. Start Flask_APP in another terminal.
 
 ```
 python.exe .\GroceryManager.py

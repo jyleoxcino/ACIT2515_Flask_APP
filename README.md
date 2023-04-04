@@ -15,7 +15,7 @@ This application connects to an Flask API endpoint to get data from a database c
 Clone this repository
 
 ```
-$ git clone https://github.com/jyleoxcino/ACIT2515_Flask_APP.git
+git clone https://github.com/jyleoxcino/ACIT2515_Flask_APP.git
 ```
 
 ## Usage
@@ -32,22 +32,22 @@ pip install flask flask-alchemy PyQt5
 
 ### Setup
 
-1. Create and populate database from repo directory.
+1. Create and populate database from repo directory using setup.py.
 
 ```
-$ python.exe .\create_tables.py || .\create_products.py || .\create_order.py
+python.exe .\setup.py
 ```
 
 2. Start Flask development webserver.
 
 ```
-$ python.exe .\webserver.py
+python.exe .\webserver.py
 ```
 
 3. Start Flask_APP
 
 ```
-$ python.exe .\GroceryManager.py
+python.exe .\GroceryManager.py
 ```
 
 

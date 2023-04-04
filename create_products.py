@@ -1,4 +1,4 @@
-from app import app, db
+from WebServer import app, db
 from models import Product
 
 products = [

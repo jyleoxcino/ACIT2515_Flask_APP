@@ -27,7 +27,7 @@ This application requires Python 3.11 and some other modules.
 Install dependencies using `pip`
 
 ```
-pip install flask flask-sqlalchemy PyQt5
+pip install requests flask flask-sqlalchemy PyQt5
 ```
 
 ### Setup

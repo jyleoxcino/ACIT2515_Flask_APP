@@ -2,13 +2,14 @@
 
 ## About
 
-Grocery Manager Application created using Python and PyQt5 GUI library.
+Grocery Manager Application created using Python and the PyQt5 GUI library.
 
 This application connects to an Flask API endpoint to get data from a database created from SQL Alchemy and the Flask-SQLAlchemy extension.
 
-![[grocery_manager_example.png]]
+![Grocery Manager](images/grocery_manager_example.png)
 
-![[order_manager_exmaple.png]]
+![Order Manager](images/order_manager_exmaple.png)
+
 ## Installation
 
 Clone this repository

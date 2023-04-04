@@ -1,7 +1,6 @@
 from pathlib import Path
-
+from datetime import datetime
 from flask import Flask, jsonify, render_template, request
-
 from database import db
 from models import Product, Order, ProductsOrder
 
@@ -18,6 +17,7 @@ db.init_app(app)
 #               LANDING
 ############################################
 
+
 @app.route("/")
 def home():
     data = Product.query.all()
@@ -30,8 +30,26 @@ def home():
 ############################################
 
 ############################################
+#               VIEW PRODUCTS
+############################################
+
+
+@app.route("/api/product/", methods=["GET"])
+def api_view_product():
+    product = db.session.query(Product).all()
+    product_list = []
+    for products in product:
+        product_list.append({
+            "name": products.name,
+            "price": products.price,
+            "quantity": products.quantity
+        })
+    return jsonify(product_list)
+
+############################################
 #               GET PRODUCT
 ############################################
+
 
 @app.route("/api/product/<string:name>", methods=["GET"])
 def api_get_product(name):
@@ -45,17 +63,19 @@ def api_get_product(name):
 #               CREATE PRODUCT
 ############################################
 
-@app.route("/api/product", methods=["POST"])
+
+@app.route("/api/product/", methods=["POST"])
 def api_create_product():
     data = request.json
+    print("create product")
     # Check all data is provided
     for key in ("name", "price", "quantity"):
         if key not in data:
             return f"The JSON provided is invalid (missing: {key})", 400
 
     try:
-        price = float(data["price"])
-        quantity = int(data["quantity"])
+        price = float(data['price'])
+        quantity = int(data['quantity'])
         # Make sure they are positive
         if price < 0 or quantity < 0:
             raise ValueError
@@ -71,16 +91,17 @@ def api_create_product():
         price=price,
         quantity=quantity,
     )
-    
+
     # Add product to database
     db.session.add(product)
     db.session.commit()
-    
+
     return "Item added to the database"
 
 ############################################
 #               DELETE PRODUCT
 ############################################
+
 
 @app.route("/api/product/<string:name>", methods=["DELETE"])
 def api_delete_product(name):
@@ -97,6 +118,7 @@ def api_delete_product(name):
 #               UPDATE PRODUCT
 ############################################
 
+
 @app.route("/api/product/<string:name>", methods=["PUT"])
 def api_update_product(name):
     data = request.json
@@ -110,8 +132,8 @@ def api_update_product(name):
         return f"Product doesn't exist", 400
 
     try:
-        price = float(data["price"])
-        quantity = int(data["quantity"])
+        price = float(data['price'])
+        quantity = int(data['quantity'])
         # Make sure they are positive
         if price < 0 or quantity < 0:
             raise ValueError
@@ -135,8 +157,50 @@ def api_update_product(name):
 ############################################
 
 ############################################
+#               GET PRODUCTS_ORDERS
+############################################
+
+
+@app.route("/api/order_products/", methods=["GET"])
+def api_get_product_order():
+    product_orders = db.session.query(ProductsOrder).all()
+    product_orders_list = []
+    for order in product_orders:
+        product_orders_list.append({
+            "product_name": order.product_name,
+            "order_id": order.order_id,
+            "quantity": order.quantity
+        })
+    return jsonify(product_orders_list)
+
+############################################
+#               VIEW ORDERS
+############################################
+
+
+@app.route("/api/order/", methods=["GET"])
+def api_view_order():
+    orders = db.session.query(Order).all()
+    orders_list = []
+    for order in orders:
+        if order.date_processed == None:
+            _date_processed = ''
+        else:
+            _date_processed = order.date_processed.strftime("%Y-%m-%d %H:%M:%S")
+        orders_list.append({
+            "id": order.id,
+            "name": order.name,
+            "address": order.address,
+            "date_created": order.date_created.strftime("%Y-%m-%d %H:%M:%S"),
+            "completed": order.completed,
+            "date_processed": _date_processed
+        })
+    return jsonify(orders_list)
+
+############################################
 #               GET ORDER
 ############################################
+
 
 @app.route("/api/order/<int:order_id>", methods=["GET"])
 def api_get_order(order_id):
@@ -168,6 +232,7 @@ def api_get_order(order_id):
 #               CREATE ORDER
 ############################################
 
+
 @app.route("/api/order/", methods=["POST"])
 def api_create_order():
 
@@ -179,9 +244,9 @@ def api_create_order():
             return f"The JSON provided is invalid (missing: {key})", 400
 
     # Store data
-    customer_name = data["customer_name"]
-    customer_address = data["customer_address"]
-    products = data["products"]
+    customer_name = data['customer_name']
+    customer_address = data['customer_address']
+    products = data['products']
 
     # validate price
     try:
@@ -195,25 +260,23 @@ def api_create_order():
 
     # Iterate through each product in products payload
     for product in products:
-        product_info = db.session.get(Product, product["name"])
+        product_info = db.session.get(Product, product['name'])
 
         # check if product exists
         if not product_info:
             return f"Product: {product['name']}, not in database. ", 400
 
         # check product data types
-        if type(product["quantity"]) is float:
+        if type(product['quantity']) is float:
             return f"{product['name']} must have a positive integer as a value.", 400
-        elif type(product["quantity"]) is str:
+        elif type(product['quantity']) is str:
             return f"{product['name']} must have a positive <b>integer</b> as a value.", 400
 
         # calculate local prices for comparison later
-        local_price += product_info.price * product["quantity"]
+        local_price += round(product_info.price * product['quantity'], 2)
 
     # check if local costs same as price in payload
     if (local_price != price):
-        print(price)
-        print(local_price)
         return "Error in cost, check local store cost", 400
 
     # Create [Order] Object
@@ -241,8 +304,12 @@ def api_create_order():
 #               PROCESS ORDER
 ############################################
 
-@app.route("/api/order/<int:order_id>", methods=["PUT"])
+
+@app.route("/api/order/<int:order_id>", methods=["POST"])
 def api_process_order(order_id):
+
+    _date = datetime.now()
+    _formatted_date = _date.strftime("%Y-%m-%d %H:%M:%S")
 
     # SELECT [order]
     order = db.session.get(Order, order_id)
@@ -271,12 +338,72 @@ def api_process_order(order_id):
 
     # set order to completed
     order.completed = True
+    order.date_processed = datetime.now()
 
     # run query to update session
     db.session.commit()
 
     # Return Order Details
     return api_get_order(order.id), 200
+
+############################################
+#               DELETE ORDER
+############################################
+
+
+@app.route("/api/order/<int:order_id>", methods=["DELETE"])
+def api_delete_order(order_id):
+    order = db.session.get(Order, order_id)
+    if not order:
+        return f"Order {order_id} doesn't exist", 400
+
+    db.session.query(Order).filter(Order.id == order_id).delete()
+    db.session.query(ProductsOrder).filter(
+        ProductsOrder.order_id == order_id).delete()
+    db.session.commit()
+
+    return f"Order {order_id} has been deleted from database.", 200
+
+############################################
+#               UPDATE ORDER
+############################################
+
+
+@app.route("/api/order/<int:order_id>", methods=["PUT"])
+def api_update_order(order_id):
+    data = request.json
+    new_products = []
+    # check for json keys
+    for key in data:
+        if key not in ("products", "customer_name", "customer_address", "price"):
+            return f"The JSON provided is invalid, (missing: {key})", 400
+    # check if order exists
+    order = db.session.get(Order, order_id)
+    if not order:
+        return f"Order doesn't exist", 400
+    if order.completed == True:
+        return f"This order has already been processed and can't be modified", 400
+
+    # check all products in payload - > data['products]
+    for products in data['products']:
+        product = db.session.get(Product, products['name'])
+        if not product:
+            return f"Product doesn't exist", 400
+        new_products.append(products)
+
+    # delete all products that have same order id in products_order
+    db.session.query(ProductsOrder).filter(
+        ProductsOrder.order_id == order_id).delete()
+    db.session.commit()
+
+    # add new product to database with order id
+    for product in new_products:
+        obj = ProductsOrder(
+            order_id=order.id, product_name=product["name"], quantity=product["quantity"])
+        db.session.add(obj)
+    db.session.commit()
+
+    return f"Order {order_id} has been updated."
 
 
 if __name__ == "__main__":

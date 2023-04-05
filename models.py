@@ -1,5 +1,9 @@
 from database import db
+from datetime import datetime
+from sqlalchemy import func
 
+_current_date = datetime.now()
+_formatted_date = _current_date.strftime("%Y-%m-%d %H:%M:%S")
 
 class Product(db.Model):
     
@@ -22,17 +26,26 @@ class Order(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String, nullable=False)
     address = db.Column(db.String, nullable=False)
+    date_created = db.Column(db.DateTime, nullable=False, default=func.now())
     completed = db.Column(db.Boolean, default=False, nullable=False)
+    date_processed = db.Column(db.DateTime, nullable=True, default=None)
     
     # Relationships
     products = db.relationship('ProductsOrder', back_populates='order')
     # Methods
+
     def to_dict(self):
+        if self.date_processed == None:
+            _date_processed = ''
+        else:
+            _date_processed = self.date_processed.strftime("%Y-%m-%d %H:%M:%S")
         return {
             "customer_name": self.name,
             "customer_address": self.address,
             "products": None,
-            "price": None
+            "price": None,
+            "date_created": self.date_created.strftime("%Y-%m-%d %H:%M:%S"),
+            "date_processed": _date_processed
         }
     
     

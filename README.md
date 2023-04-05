@@ -46,7 +46,13 @@ python.exe .\setup.py
 python.exe .\webserver.py
 ```
 
-3. Start Flask_APP in another terminal.
+3. Create some orders and populate database.
+
+```
+python.exe .\create_order.py
+```
+
+4. Start Flask_APP in another terminal.
 
 ```
 python.exe .\GroceryManager.py

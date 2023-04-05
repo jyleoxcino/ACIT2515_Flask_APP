@@ -27,7 +27,7 @@ This application requires Python 3.11 and some other modules.
 Install dependencies using `pip`
 
 ```
-pip install flask flask-sqlalchemy PyQt5
+pip install requests flask flask-sqlalchemy PyQt5
 ```
 
 ### Setup
@@ -39,6 +39,8 @@ python.exe .\setup.py
 ```
 
 2. Start Flask development web server.
+
+⚠ Web server must be running on port 5000 to properly use Grocery Manager.
 
 ```
 python.exe .\webserver.py

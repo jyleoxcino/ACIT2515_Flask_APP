@@ -40,7 +40,7 @@ python.exe .\setup.py
 
 2. Start Flask development web server.
 
-⚠ Web server must be running on port 5000 to properly use Grocery Manager.
+  - ⚠ Web server must be running on port 5000 to properly use Grocery Manager.
 
 ```
 python.exe .\webserver.py

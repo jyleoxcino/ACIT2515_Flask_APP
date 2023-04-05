@@ -4,7 +4,7 @@ from WebServer import app, db
 from models import Order, Product, ProductsOrder
 
 with app.app_context():
-    o = Order(name="Tim", address="Vancouver")
+    o = Order(name="Jyle", address="Vancouver")
     db.session.add(o)
     db.session.commit()
 

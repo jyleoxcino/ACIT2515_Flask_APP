@@ -49,7 +49,7 @@ python.exe .\webserver.py
 3. Create some orders and populate database.
 
 ```
-python.exe .\create_order.py
+python.exe .\create_order.py .\create_tables.py
 ```
 
 4. Start Flask_APP in another terminal.
